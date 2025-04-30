@@ -12,7 +12,7 @@ import java.time.*;
 import java.util.*;
 
 public class App extends Application {
-  public static final String NAME = "Unicode Converter";
+  public static final String NAME = "Unidecoder";
   public static final String VERSION = "2.0";
 
   public static final Logger LOGGER = new Logger(NAME);
