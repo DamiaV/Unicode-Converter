@@ -16,10 +16,14 @@ import net.darmo_creations.unicode_converter.utils.*;
 import org.jetbrains.annotations.*;
 
 import java.io.*;
+import java.nio.charset.*;
 import java.util.*;
 import java.util.stream.*;
 
 public class AppController {
+  private static final Charset UTF_32LE = Charset.forName("UTF-32LE");
+  private static final Charset UTF_32BE = Charset.forName("UTF-32BE");
+
   private final Stage stage;
   private final Config config;
 
@@ -32,6 +36,16 @@ public class AppController {
   private final PlainTextField plainTextField = new PlainTextField();
   private final UnicodeDecimalCodepointsTextField unicodeDecimalCodepointsTextField = new UnicodeDecimalCodepointsTextField();
   private final UnicodeHexadecimalCodepointsTextField unicodeHexadecimalCodepointsTextField = new UnicodeHexadecimalCodepointsTextField();
+  private final UtfCodesTextField utf8DecimalCodesField = new UtfCodesTextField(false, StandardCharsets.UTF_8);
+  private final UtfCodesTextField utf8HexadecimalCodesField = new UtfCodesTextField(true, StandardCharsets.UTF_8);
+  private final UtfCodesTextField utf16LeDecimalCodesField = new UtfCodesTextField(false, StandardCharsets.UTF_16LE);
+  private final UtfCodesTextField utf16LeHexadecimalCodesField = new UtfCodesTextField(true, StandardCharsets.UTF_16LE);
+  private final UtfCodesTextField utf16BeDecimalCodesField = new UtfCodesTextField(false, StandardCharsets.UTF_16BE);
+  private final UtfCodesTextField utf16BeHexadecimalCodesField = new UtfCodesTextField(true, StandardCharsets.UTF_16BE);
+  private final UtfCodesTextField utf32LeDecimalCodesField = new UtfCodesTextField(false, UTF_32LE);
+  private final UtfCodesTextField utf32LeHexadecimalCodesField = new UtfCodesTextField(true, UTF_32LE);
+  private final UtfCodesTextField utf32BeDecimalCodesField = new UtfCodesTextField(false, UTF_32BE);
+  private final UtfCodesTextField utf32BeHexadecimalCodesField = new UtfCodesTextField(true, UTF_32BE);
   private final Set<CodepointField> codepointFields = new HashSet<>();
 
   public AppController(@NotNull Stage stage, @NotNull Config config) {
@@ -41,6 +55,16 @@ public class AppController {
     this.codepointFields.add(this.plainTextField);
     this.codepointFields.add(this.unicodeDecimalCodepointsTextField);
     this.codepointFields.add(this.unicodeHexadecimalCodepointsTextField);
+    this.codepointFields.add(this.utf8DecimalCodesField);
+    this.codepointFields.add(this.utf8HexadecimalCodesField);
+    this.codepointFields.add(this.utf16LeDecimalCodesField);
+    this.codepointFields.add(this.utf16LeHexadecimalCodesField);
+    this.codepointFields.add(this.utf16BeDecimalCodesField);
+    this.codepointFields.add(this.utf16BeHexadecimalCodesField);
+    this.codepointFields.add(this.utf32LeDecimalCodesField);
+    this.codepointFields.add(this.utf32LeHexadecimalCodesField);
+    this.codepointFields.add(this.utf32BeDecimalCodesField);
+    this.codepointFields.add(this.utf32BeHexadecimalCodesField);
 
     final Theme theme = config.theme();
     final Image icon = theme.getAppIcon();
@@ -148,20 +172,89 @@ public class AppController {
             })
     );
 
+    int i = 0;
     gridPane.addRow(
-        0,
+        i++,
         new Label(language.translate("text.label")),
         this.plainTextField
     );
+
+    gridPane.add(new Separator(Orientation.HORIZONTAL), 0, i++, 2, 1);
+
     gridPane.addRow(
-        1,
+        i++,
+        new Label(language.translate("hex_codepoints.label")),
+        this.unicodeHexadecimalCodepointsTextField
+    );
+    gridPane.addRow(
+        i++,
         new Label(language.translate("decimal_codepoints.label")),
         this.unicodeDecimalCodepointsTextField
     );
+
+    gridPane.add(new Separator(Orientation.HORIZONTAL), 0, i++, 2, 1);
+
     gridPane.addRow(
-        2,
-        new Label(language.translate("hex_codepoints.label")),
-        this.unicodeHexadecimalCodepointsTextField
+        i++,
+        new Label(language.translate("utf8_hex_bytes.label")),
+        this.utf8HexadecimalCodesField
+    );
+    gridPane.addRow(
+        i++,
+        new Label(language.translate("utf8_decimal_bytes.label")),
+        this.utf8DecimalCodesField
+    );
+
+    gridPane.add(new Separator(Orientation.HORIZONTAL), 0, i++, 2, 1);
+
+    gridPane.addRow(
+        i++,
+        new Label(language.translate("utf16be_hex_bytes.label")),
+        this.utf16BeHexadecimalCodesField
+    );
+    gridPane.addRow(
+        i++,
+        new Label(language.translate("utf16be_decimal_bytes.label")),
+        this.utf16BeDecimalCodesField
+    );
+
+    gridPane.add(new Separator(Orientation.HORIZONTAL), 0, i++, 2, 1);
+
+    gridPane.addRow(
+        i++,
+        new Label(language.translate("utf16le_hex_bytes.label")),
+        this.utf16LeHexadecimalCodesField
+    );
+    gridPane.addRow(
+        i++,
+        new Label(language.translate("utf16le_decimal_bytes.label")),
+        this.utf16LeDecimalCodesField
+    );
+
+    gridPane.add(new Separator(Orientation.HORIZONTAL), 0, i++, 2, 1);
+
+    gridPane.addRow(
+        i++,
+        new Label(language.translate("utf32be_hex_bytes.label")),
+        this.utf32BeHexadecimalCodesField
+    );
+    gridPane.addRow(
+        i++,
+        new Label(language.translate("utf32be_decimal_bytes.label")),
+        this.utf32BeDecimalCodesField
+    );
+
+    gridPane.add(new Separator(Orientation.HORIZONTAL), 0, i++, 2, 1);
+
+    gridPane.addRow(
+        i++,
+        new Label(language.translate("utf32le_hex_bytes.label")),
+        this.utf32LeHexadecimalCodesField
+    );
+    gridPane.addRow(
+        i++,
+        new Label(language.translate("utf32le_decimal_bytes.label")),
+        this.utf32LeDecimalCodesField
     );
 
     final ColumnConstraints cc2 = new ColumnConstraints();
