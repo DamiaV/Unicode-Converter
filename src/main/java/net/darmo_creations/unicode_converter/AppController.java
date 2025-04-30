@@ -2,6 +2,7 @@ package net.darmo_creations.unicode_converter;
 
 import javafx.geometry.*;
 import javafx.scene.*;
+import javafx.scene.Node;
 import javafx.scene.control.*;
 import javafx.scene.image.*;
 import javafx.scene.input.*;
@@ -9,13 +10,14 @@ import javafx.scene.layout.*;
 import javafx.stage.*;
 import net.darmo_creations.unicode_converter.config.*;
 import net.darmo_creations.unicode_converter.config.theme.*;
+import net.darmo_creations.unicode_converter.ui.*;
 import net.darmo_creations.unicode_converter.ui.dialogs.*;
 import net.darmo_creations.unicode_converter.utils.*;
 import org.jetbrains.annotations.*;
 
 import java.io.*;
 import java.util.*;
-import java.util.regex.*;
+import java.util.stream.*;
 
 public class AppController {
   private final Stage stage;
@@ -27,17 +29,24 @@ public class AppController {
   private boolean internalTextUpdate;
 
   private final AboutDialog aboutDialog;
-  private final TextField charsTextField = new TextField();
-  private final TextField decimalCodepointsTextField = new TextField();
-  private final TextField hexCodepointsTextField = new TextField();
+  private final PlainTextField plainTextField = new PlainTextField();
+  private final UnicodeDecimalCodepointsTextField unicodeDecimalCodepointsTextField = new UnicodeDecimalCodepointsTextField();
+  private final UnicodeHexadecimalCodepointsTextField unicodeHexadecimalCodepointsTextField = new UnicodeHexadecimalCodepointsTextField();
+  private final Set<CodepointField> codepointFields = new HashSet<>();
 
   public AppController(@NotNull Stage stage, @NotNull Config config) {
     this.stage = Objects.requireNonNull(stage);
     this.config = Objects.requireNonNull(config);
+
+    this.codepointFields.add(this.plainTextField);
+    this.codepointFields.add(this.unicodeDecimalCodepointsTextField);
+    this.codepointFields.add(this.unicodeHexadecimalCodepointsTextField);
+
     final Theme theme = config.theme();
     final Image icon = theme.getAppIcon();
     if (icon != null) stage.getIcons().add(icon);
-    stage.setResizable(false);
+    stage.setMinWidth(400);
+    stage.setMinHeight(200);
     stage.setTitle(App.NAME);
 
     this.aboutDialog = new AboutDialog(config);
@@ -129,106 +138,53 @@ public class AppController {
     gridPane.setHgap(5);
     gridPane.setVgap(5);
 
-    this.charsTextField.textProperty().addListener((observable, oldValue, newValue) -> {
-      if (this.internalTextUpdate) return;
-      this.internalTextUpdate = true;
-      this.fromChars(newValue);
-      this.internalTextUpdate = false;
-    });
-    this.decimalCodepointsTextField.textProperty().addListener((observable, oldValue, newValue) -> {
-      if (this.internalTextUpdate) return;
-      this.internalTextUpdate = true;
-      this.fromDecimalCodepoints(newValue);
-      this.internalTextUpdate = false;
-    });
-    this.hexCodepointsTextField.textProperty().addListener((observable, oldValue, newValue) -> {
-      if (this.internalTextUpdate) return;
-      this.internalTextUpdate = true;
-      this.fromHexCodepoints(newValue);
-      this.internalTextUpdate = false;
-    });
+    this.codepointFields.forEach(
+        field -> ((TextField) field).textProperty()
+            .addListener((observable, oldValue, newValue) -> {
+              if (this.internalTextUpdate) return;
+              this.internalTextUpdate = true;
+              this.updateOtherFields(field);
+              this.internalTextUpdate = false;
+            })
+    );
 
     gridPane.addRow(
         0,
         new Label(language.translate("text.label")),
-        this.charsTextField
+        this.plainTextField
     );
     gridPane.addRow(
         1,
         new Label(language.translate("decimal_codepoints.label")),
-        this.decimalCodepointsTextField
+        this.unicodeDecimalCodepointsTextField
     );
     gridPane.addRow(
         2,
         new Label(language.translate("hex_codepoints.label")),
-        this.hexCodepointsTextField
+        this.unicodeHexadecimalCodepointsTextField
+    );
+
+    final ColumnConstraints cc2 = new ColumnConstraints();
+    cc2.setHgrow(Priority.ALWAYS);
+    gridPane.getColumnConstraints().addAll(
+        new ColumnConstraints(),
+        cc2
     );
 
     return gridPane;
   }
 
-  private void fromChars(@NotNull String rawValue) {
-    final StringJoiner decimalJoiner = new StringJoiner(" ");
-    final StringJoiner hexJoiner = new StringJoiner(" ");
-    rawValue.codePoints().forEach(c -> {
-      decimalJoiner.add(String.valueOf(c));
-      hexJoiner.add("U+" + "%04X".formatted(c));
-    });
-    this.decimalCodepointsTextField.setText(decimalJoiner.toString());
-    this.hexCodepointsTextField.setText(hexJoiner.toString());
-  }
-
-  private void fromDecimalCodepoints(@NotNull String rawValue) {
-    final StringBuilder charsJoiner = new StringBuilder();
-    final StringJoiner hexJoiner = new StringJoiner(" ");
-    for (final String part : rawValue.strip().split("\\s+")) {
-      final int c;
-      try {
-        c = Integer.parseInt(part);
-      } catch (final NumberFormatException e) {
-        this.charsTextField.setText("");
-        this.hexCodepointsTextField.setText("");
-        break;
-      }
-      try {
-        charsJoiner.append(new String(Character.toChars(c)));
-      } catch (final IllegalArgumentException e) {
-        this.charsTextField.setText("");
-        this.decimalCodepointsTextField.setText("");
-        break;
-      }
-      hexJoiner.add("U+" + "%04X".formatted(c));
+  private void updateOtherFields(final @NotNull CodepointField sourceField) {
+    final Set<CodepointField> otherFields = this.codepointFields.stream()
+        .filter(f -> f != sourceField)
+        .collect(Collectors.toSet());
+    try {
+      final List<Integer> codepoints = sourceField.getCodepoints();
+      for (final var otherField : otherFields)
+        otherField.setCodepoints(codepoints);
+    } catch (final CodepointException e) {
+      otherFields.forEach(CodepointField::clear);
     }
-    this.charsTextField.setText(charsJoiner.toString());
-    this.hexCodepointsTextField.setText(hexJoiner.toString());
-  }
-
-  private static final Pattern HEX_CODEPOINT = Pattern.compile("^(?:U\\+)?([\\da-fA-F]+)$");
-
-  private void fromHexCodepoints(@NotNull String rawValue) {
-    final StringBuilder charsJoiner = new StringBuilder();
-    final StringJoiner decimalJoiner = new StringJoiner(" ");
-    for (final String part : rawValue.strip().split("\\s+")) {
-      final int c;
-      final Matcher matcher = HEX_CODEPOINT.matcher(part);
-      if (matcher.find())
-        c = Integer.parseInt(matcher.group(1), 16);
-      else {
-        this.charsTextField.setText("");
-        this.decimalCodepointsTextField.setText("");
-        break;
-      }
-      try {
-        charsJoiner.append(new String(Character.toChars(c)));
-      } catch (final IllegalArgumentException e) {
-        this.charsTextField.setText("");
-        this.decimalCodepointsTextField.setText("");
-        break;
-      }
-      decimalJoiner.add(String.valueOf(c));
-    }
-    this.charsTextField.setText(charsJoiner.toString());
-    this.decimalCodepointsTextField.setText(decimalJoiner.toString());
   }
 
   public void show() {
