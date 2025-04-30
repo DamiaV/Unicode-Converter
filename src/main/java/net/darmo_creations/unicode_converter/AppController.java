@@ -15,6 +15,7 @@ import org.jetbrains.annotations.*;
 
 import java.io.*;
 import java.util.*;
+import java.util.regex.*;
 
 public class AppController {
   private final Stage stage;
@@ -171,7 +172,7 @@ public class AppController {
     final StringJoiner hexJoiner = new StringJoiner(" ");
     rawValue.codePoints().forEach(c -> {
       decimalJoiner.add(String.valueOf(c));
-      hexJoiner.add(Integer.toHexString(c).toUpperCase());
+      hexJoiner.add("U+" + "%04X".formatted(c));
     });
     this.decimalCodepointsTextField.setText(decimalJoiner.toString());
     this.hexCodepointsTextField.setText(hexJoiner.toString());
@@ -189,26 +190,41 @@ public class AppController {
         this.hexCodepointsTextField.setText("");
         break;
       }
-      charsJoiner.append(new String(Character.toChars(c)));
-      hexJoiner.add(Integer.toHexString(c).toUpperCase());
+      try {
+        charsJoiner.append(new String(Character.toChars(c)));
+      } catch (final IllegalArgumentException e) {
+        this.charsTextField.setText("");
+        this.decimalCodepointsTextField.setText("");
+        break;
+      }
+      hexJoiner.add("U+" + "%04X".formatted(c));
     }
     this.charsTextField.setText(charsJoiner.toString());
     this.hexCodepointsTextField.setText(hexJoiner.toString());
   }
+
+  private static final Pattern HEX_CODEPOINT = Pattern.compile("^(?:U\\+)?([\\da-fA-F]+)$");
 
   private void fromHexCodepoints(@NotNull String rawValue) {
     final StringBuilder charsJoiner = new StringBuilder();
     final StringJoiner decimalJoiner = new StringJoiner(" ");
     for (final String part : rawValue.strip().split("\\s+")) {
       final int c;
-      try {
-        c = Integer.parseInt(part, 16);
-      } catch (final NumberFormatException e) {
+      final Matcher matcher = HEX_CODEPOINT.matcher(part);
+      if (matcher.find())
+        c = Integer.parseInt(matcher.group(1), 16);
+      else {
         this.charsTextField.setText("");
-        this.hexCodepointsTextField.setText("");
+        this.decimalCodepointsTextField.setText("");
         break;
       }
-      charsJoiner.append(new String(Character.toChars(c)));
+      try {
+        charsJoiner.append(new String(Character.toChars(c)));
+      } catch (final IllegalArgumentException e) {
+        this.charsTextField.setText("");
+        this.decimalCodepointsTextField.setText("");
+        break;
+      }
       decimalJoiner.add(String.valueOf(c));
     }
     this.charsTextField.setText(charsJoiner.toString());
