@@ -12,10 +12,7 @@ import net.darmo_creations.unicode_converter.*;
 import net.darmo_creations.unicode_converter.config.*;
 import net.darmo_creations.unicode_converter.config.theme.*;
 import net.darmo_creations.unicode_converter.ui.*;
-import net.darmo_creations.unicode_converter.utils.*;
 import org.jetbrains.annotations.*;
-
-import java.util.*;
 
 /**
  * Dialog that displays information about this app. It is not resizable.
@@ -101,10 +98,5 @@ public class AboutDialog extends DialogBase<ButtonType> {
     link.getStyleClass().add("hyperlink"); // Add built-in JavaFX CSS class to format link
     link.setOnMouseClicked(event -> App.openURL(url));
     return link;
-  }
-
-  @Override
-  protected List<FormatArg> getTitleFormatArgs() {
-    return List.of(new FormatArg("app_name", App.NAME));
   }
 }

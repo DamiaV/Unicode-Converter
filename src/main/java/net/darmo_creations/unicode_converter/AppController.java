@@ -176,7 +176,7 @@ public class AppController {
     gridPane.addRow(
         i++,
         new Label(language.translate("text.label")),
-        this.plainTextField
+        new CopyableTextField(this.plainTextField, this.config)
     );
 
     gridPane.add(new Separator(Orientation.HORIZONTAL), 0, i++, 2, 1);
@@ -184,12 +184,12 @@ public class AppController {
     gridPane.addRow(
         i++,
         new Label(language.translate("hex_codepoints.label")),
-        this.unicodeHexadecimalCodepointsTextField
+        new CopyableTextField(this.unicodeHexadecimalCodepointsTextField, this.config)
     );
     gridPane.addRow(
         i++,
         new Label(language.translate("decimal_codepoints.label")),
-        this.unicodeDecimalCodepointsTextField
+        new CopyableTextField(this.unicodeDecimalCodepointsTextField, this.config)
     );
 
     gridPane.add(new Separator(Orientation.HORIZONTAL), 0, i++, 2, 1);
@@ -197,12 +197,12 @@ public class AppController {
     gridPane.addRow(
         i++,
         new Label(language.translate("utf8_hex_bytes.label")),
-        this.utf8HexadecimalCodesField
+        new CopyableTextField(this.utf8HexadecimalCodesField, this.config)
     );
     gridPane.addRow(
         i++,
         new Label(language.translate("utf8_decimal_bytes.label")),
-        this.utf8DecimalCodesField
+        new CopyableTextField(this.utf8DecimalCodesField, this.config)
     );
 
     gridPane.add(new Separator(Orientation.HORIZONTAL), 0, i++, 2, 1);
@@ -210,12 +210,12 @@ public class AppController {
     gridPane.addRow(
         i++,
         new Label(language.translate("utf16be_hex_bytes.label")),
-        this.utf16BeHexadecimalCodesField
+        new CopyableTextField(this.utf16BeHexadecimalCodesField, this.config)
     );
     gridPane.addRow(
         i++,
         new Label(language.translate("utf16be_decimal_bytes.label")),
-        this.utf16BeDecimalCodesField
+        new CopyableTextField(this.utf16BeDecimalCodesField, this.config)
     );
 
     gridPane.add(new Separator(Orientation.HORIZONTAL), 0, i++, 2, 1);
@@ -223,12 +223,12 @@ public class AppController {
     gridPane.addRow(
         i++,
         new Label(language.translate("utf16le_hex_bytes.label")),
-        this.utf16LeHexadecimalCodesField
+        new CopyableTextField(this.utf16LeHexadecimalCodesField, this.config)
     );
     gridPane.addRow(
         i++,
         new Label(language.translate("utf16le_decimal_bytes.label")),
-        this.utf16LeDecimalCodesField
+        new CopyableTextField(this.utf16LeDecimalCodesField, this.config)
     );
 
     gridPane.add(new Separator(Orientation.HORIZONTAL), 0, i++, 2, 1);
@@ -236,12 +236,12 @@ public class AppController {
     gridPane.addRow(
         i++,
         new Label(language.translate("utf32be_hex_bytes.label")),
-        this.utf32BeHexadecimalCodesField
+        new CopyableTextField(this.utf32BeHexadecimalCodesField, this.config)
     );
     gridPane.addRow(
         i++,
         new Label(language.translate("utf32be_decimal_bytes.label")),
-        this.utf32BeDecimalCodesField
+        new CopyableTextField(this.utf32BeDecimalCodesField, this.config)
     );
 
     gridPane.add(new Separator(Orientation.HORIZONTAL), 0, i++, 2, 1);
@@ -249,12 +249,12 @@ public class AppController {
     gridPane.addRow(
         i++,
         new Label(language.translate("utf32le_hex_bytes.label")),
-        this.utf32LeHexadecimalCodesField
+        new CopyableTextField(this.utf32LeHexadecimalCodesField, this.config)
     );
     gridPane.addRow(
         i++,
         new Label(language.translate("utf32le_decimal_bytes.label")),
-        this.utf32LeDecimalCodesField
+        new CopyableTextField(this.utf32LeDecimalCodesField, this.config)
     );
 
     final ColumnConstraints cc2 = new ColumnConstraints();
