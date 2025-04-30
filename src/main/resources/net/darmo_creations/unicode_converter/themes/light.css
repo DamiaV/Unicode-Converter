@@ -1,0 +1,11 @@
+.root {
+  -fx-control-inner-background-alt: derive(-fx-control-inner-background, -10%);
+}
+
+Text {
+  -fx-fill: -fx-mid-text-color;
+}
+
+Text.hyperlink {
+  -fx-fill: #265F7F;
+}
