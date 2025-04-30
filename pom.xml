@@ -5,9 +5,9 @@
   <modelVersion>4.0.0</modelVersion>
 
   <groupId>net.darmo_creations</groupId>
-  <artifactId>unicode_converter</artifactId>
+  <artifactId>unidecoder</artifactId>
   <version>2.0</version>
-  <name>Unicode Converter</name>
+  <name>Unidecoder</name>
 
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
